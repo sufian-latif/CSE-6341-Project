@@ -1,12 +1,12 @@
 public class Token {
-    private String type;
+    private TokenType type;
     private String value;
 
-    public static final Token EOF = new Token("EOF", null);
-    public static final Token LPAREN = new Token("LPAREN", "(");
-    public static final Token RPAREN = new Token("RPAREN", ")");
+    public static final Token EOF = new Token(TokenType.EOF, null);
+    public static final Token LPAREN = new Token(TokenType.LPAREN, "(");
+    public static final Token RPAREN = new Token(TokenType.RPAREN, ")");
 
-    public Token(String type, String value) {
+    public Token(TokenType type, String value) {
         this.type = type;
         this.value = value;
     }
@@ -15,7 +15,7 @@ public class Token {
         return "(" + type + ", " + value + ")";
     }
 
-    public String getType() {
+    public TokenType getType() {
         return type;
     }
 

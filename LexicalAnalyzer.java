@@ -41,11 +41,11 @@ public class LexicalAnalyzer {
 
 			reader.unread(ch);
 
-			if(isLetter(tok.charAt(0))) return new Token("LITERAL", tok.toString());
+			if(isLetter(tok.charAt(0))) return new Token(TokenType.LITERAL, tok.toString());
             for (int i = 0; i < tok.length(); i++) {
-                if(isLetter(tok.charAt(i))) return new Token("ERROR", tok.toString());
+                if(isLetter(tok.charAt(i))) return new Token(TokenType.ERROR, tok.toString());
             }
-            return new Token("NUMERIC", tok.toString());
+            return new Token(TokenType.NUMERIC, tok.toString());
 		}
 	}
 }

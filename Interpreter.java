@@ -16,19 +16,19 @@ public class Interpreter {
 
 		do {
 			token = lex.getNextToken(reader);
-			if(token.getType().equals("LITERAL")) {
+			if(token.getType() == TokenType.LITERAL) {
 			    literals.add(token);
-            } else if(token.getType().equals("NUMERIC")) {
+            } else if(token.getType() == TokenType.NUMERIC) {
 			    numerics.add(token);
-            } else if(token.getType().equals("LPAREN")) {
+            } else if(token.getType() == TokenType.LPAREN) {
 			    countLParen++;
-            } else if(token.getType().equals("RPAREN")) {
+            } else if(token.getType() == TokenType.RPAREN) {
 			    countRParen++;
-            } else if(token.getType().equals("ERROR")) {
+            } else if(token.getType() == TokenType.ERROR) {
 			    System.out.println("ERROR: Invalid token " + token.getValue());
 			    System.exit(0);
             }
-		} while(token != Token.EOF);
+		} while(token.getType() != TokenType.EOF);
 
         System.out.print("LITERAL ATOMS: " + literals.size());
         for (Token literal : literals) {
