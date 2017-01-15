@@ -3,7 +3,6 @@ public class Token {
     private String value;
 
     public static final Token EOF = new Token("EOF", null);
-    public static final Token ERROR = new Token("ERROR", null);
     public static final Token LPAREN = new Token("LPAREN", "(");
     public static final Token RPAREN = new Token("RPAREN", ")");
 

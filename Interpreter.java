@@ -24,11 +24,11 @@ public class Interpreter {
 			    countLParen++;
             } else if(token.getType().equals("RPAREN")) {
 			    countRParen++;
-            } else if(token == Token.ERROR) {
-			    System.out.println("ERROR: Invalid token");
+            } else if(token.getType().equals("ERROR")) {
+			    System.out.println("ERROR: Invalid token " + token.getValue());
 			    System.exit(0);
             }
-		} while(token != Token.EOF && token != Token.ERROR);
+		} while(token != Token.EOF);
 
         System.out.print("LITERAL ATOMS: " + literals.size());
         for (Token literal : literals) {

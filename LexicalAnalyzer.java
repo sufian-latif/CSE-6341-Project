@@ -31,7 +31,7 @@ public class LexicalAnalyzer {
 			return Token.LPAREN;
 		} else if(ch == ')') {
 			return Token.RPAREN;
-		} else if(isLetter(ch)) {
+		} else {
 			StringBuilder tok = new StringBuilder();
 
 			do {
@@ -40,18 +40,12 @@ public class LexicalAnalyzer {
 			} while(isLetter(ch) || isDigit(ch));
 
 			reader.unread(ch);
-			return new Token("LITERAL", tok.toString());
-		} else if(isDigit(ch)) {
-			StringBuilder tok = new StringBuilder();
 
-			do {
-				tok.append((char)ch);
-				ch = reader.read();
-			} while(isDigit(ch));
-			reader.unread(ch);
-			return new Token("NUMERIC", tok.toString());
+			if(isLetter(tok.charAt(0))) return new Token("LITERAL", tok.toString());
+            for (int i = 0; i < tok.length(); i++) {
+                if(isLetter(tok.charAt(i))) return new Token("ERROR", tok.toString());
+            }
+            return new Token("NUMERIC", tok.toString());
 		}
-
-		return Token.EOF;
 	}
 }
