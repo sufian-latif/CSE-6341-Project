@@ -17,34 +17,23 @@ public class LexicalAnalyzer {
 
 	public Token getNextToken(PushbackReader reader) throws IOException {
 		int ch = reader.read();
+		while(isWhitespace(ch)) ch = reader.read();
 
-		if(isWhitespace(ch)) {
-			 do {
-				ch = reader.read();
-			} while(isWhitespace(ch));
-		}
+        if(ch == -1) return Token.EOF;
+        if(ch == '(') return Token.LPAREN;
+		if(ch == ')') return Token.RPAREN;
 
-        if(ch == -1) {
-            return Token.EOF;
-        } else if(ch == '(') {
-			return Token.LPAREN;
-		} else if(ch == ')') {
-			return Token.RPAREN;
-		} else {
-			StringBuilder tok = new StringBuilder();
+		StringBuilder tok = new StringBuilder();
+        do {
+            tok.append((char)ch);
+            ch = reader.read();
+        } while(isLetter(ch) || isDigit(ch));
+        reader.unread(ch);
 
-			do {
-				tok.append((char)ch);
-				ch = reader.read();
-			} while(isLetter(ch) || isDigit(ch));
-
-			reader.unread(ch);
-
-			if(isLetter(tok.charAt(0))) return new Token(TokenType.LITERAL, tok.toString());
-            for (int i = 0; i < tok.length(); i++) {
-                if(isLetter(tok.charAt(i))) return new Token(TokenType.ERROR, tok.toString());
-            }
-            return new Token(TokenType.NUMERIC, tok.toString());
-		}
+        if(isLetter(tok.charAt(0))) return new Token(TokenType.LITERAL, tok.toString());
+        for (int i = 0; i < tok.length(); i++) {
+            if(isLetter(tok.charAt(i))) return new Token(TokenType.ERROR, tok.toString());
+        }
+        return new Token(TokenType.NUMERIC, tok.toString());
 	}
 }
