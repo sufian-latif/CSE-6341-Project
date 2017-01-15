@@ -4,8 +4,7 @@ import java.io.PushbackReader;
 public class LexicalAnalyzer {
 
 	private boolean isWhitespace(int c) {
-		char ch = (char) c;
-		return ch == ' ' || ch == '\r' || ch == '\n';
+		return c == ' ' || c == '\r' || c == '\n';
 	}
 
 	private boolean isLetter(int c) {
