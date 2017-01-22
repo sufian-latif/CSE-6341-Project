@@ -9,26 +9,31 @@ public class Parser {
 
     public void parseStart() throws IOException {
         do {
-            parseExpr();
-            System.out.println();
+            System.out.println(parseExpr());
         } while(!lex.getCurrent().getType().equals(TokenType.EOF));
     }
 
-    public void parseExpr() throws IOException {
-        if(lex.getCurrent().getType().equals(TokenType.LITERAL) || lex.getCurrent().getType().equals(TokenType.NUMERIC)) {
-            System.out.print(" " + lex.getCurrent().getValue() + " ");
+    private TreeNode parseExpr() throws IOException {
+        if(lex.getCurrent().getType() == TokenType.LITERAL || lex.getCurrent().getType() == TokenType.NUMERIC) {
+            Token token = lex.getCurrent();
             lex.moveToNext();
+            return new TreeNode(token);
         } else if(lex.getCurrent().getType().equals(TokenType.LPAREN)) {
-            System.out.print("(");
             lex.moveToNext();
-            while(!lex.getCurrent().getType().equals(TokenType.RPAREN)) {
-                parseExpr();
-            }
-            System.out.print(")");
-            lex.moveToNext();
+            return parseList();
         } else {
-            System.out.println("Parsing error");
+            if(lex.getCurrent().getType() == TokenType.ERROR) System.out.println("ERROR: Invalid Token " + lex.getCurrent());
+            else System.out.println("ERROR: Unexpected Token " + lex.getCurrent());
             System.exit(0);
+            return null;
         }
+    }
+
+    private TreeNode parseList() throws IOException {
+        if(lex.getCurrent().getType() == TokenType.RPAREN) {
+            lex.moveToNext();
+            return new TreeNode(Token.NIL);
+        }
+        return new TreeNode(parseExpr(), parseList());
     }
 }
