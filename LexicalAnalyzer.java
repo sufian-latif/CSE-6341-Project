@@ -2,6 +2,21 @@ import java.io.IOException;
 import java.io.PushbackReader;
 
 public class LexicalAnalyzer {
+	private  PushbackReader reader;
+	Token current;
+
+	public LexicalAnalyzer(PushbackReader reader) throws IOException {
+		this.reader = reader;
+		current = getNextToken();
+	}
+
+	public Token getCurrent() {
+		return current;
+	}
+
+	public void moveToNext() throws IOException {
+		current = getNextToken();
+	}
 
 	private boolean isWhitespace(int c) {
 		return c == ' ' || c == '\r' || c == '\n';
@@ -15,7 +30,7 @@ public class LexicalAnalyzer {
 		return c >= '0' && c <= '9';
 	}
 
-	public Token getNextToken(PushbackReader reader) throws IOException {
+	public Token getNextToken() throws IOException {
 		int ch = reader.read();
 		while(isWhitespace(ch)) ch = reader.read();
 

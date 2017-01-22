@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Interpreter {
 	public static void main(String[] args) throws IOException {
 		PushbackReader reader = new PushbackReader(new InputStreamReader(System.in));
-		LexicalAnalyzer lex = new LexicalAnalyzer();
+        LexicalAnalyzer lex = new LexicalAnalyzer(reader);
         ArrayList<Token> literals = new ArrayList<Token>();
         int sumNumeric = 0, countNumeric = 0;
         int countLParen = 0, countRParen = 0;
@@ -14,7 +14,7 @@ public class Interpreter {
 		Token token;
 
 		do {
-			token = lex.getNextToken(reader);
+			token = lex.getCurrent();
 			if(token.getType() == TokenType.LITERAL) {
 			    literals.add(token);
             } else if(token.getType() == TokenType.NUMERIC) {
@@ -28,6 +28,7 @@ public class Interpreter {
 			    System.out.println("ERROR: Invalid token " + token.getValue());
 			    System.exit(0);
             }
+            lex.moveToNext();
 		} while(token.getType() != TokenType.EOF);
 
         System.out.print("LITERAL ATOMS: " + literals.size());
