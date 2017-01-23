@@ -18,7 +18,7 @@ public class Parser {
             Token token = lex.getCurrent();
             lex.moveToNext();
             return new TreeNode(token);
-        } else if(lex.getCurrent().getType().equals(TokenType.LPAREN)) {
+        } else if(lex.getCurrent().getType() == TokenType.LPAREN) {
             lex.moveToNext();
             return parseList();
         } else {
