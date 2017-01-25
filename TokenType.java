@@ -4,5 +4,5 @@ public enum TokenType {
     LPAREN,
     RPAREN,
     LITERAL,
-    NUMERIC,
+    NUMERIC
 }

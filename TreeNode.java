@@ -1,23 +1,21 @@
 public class TreeNode {
-    Token token;
-    TreeNode left, right;
+    private Token token;
+    private TreeNode left, right;
+    private boolean isLeaf;
 
     public TreeNode(Token token) {
         this.token = token;
-        left = right = null;
+        isLeaf = true;
     }
 
     public TreeNode(TreeNode left, TreeNode right) {
         this.left = left;
         this.right = right;
-    }
-
-    public boolean isLeaf() {
-        return left == null && right == null;
+        isLeaf = false;
     }
 
     public String toString() {
-        if(isLeaf()) return token.getValue();
+        if (isLeaf) return token.getValue();
         return "(" + left + "." + right + ")";
     }
 }
