@@ -14,17 +14,18 @@ public class Parser {
     }
 
     private TreeNode parseExpr() throws IOException {
-        if (lex.getCurrent().getType() == TokenType.LITERAL || lex.getCurrent().getType() == TokenType.NUMERIC) {
-            Token token = lex.getCurrent();
+        Token token = lex.getCurrent();
+
+        if (token.getType() == TokenType.LITERAL || token.getType() == TokenType.NUMERIC) {
             lex.moveToNext();
             return new TreeNode(token);
-        } else if (lex.getCurrent().getType() == TokenType.LPAREN) {
+        } else if (token.getType() == TokenType.LPAREN) {
             lex.moveToNext();
             return parseList();
         } else {
-            if (lex.getCurrent().getType() == TokenType.ERROR)
-                System.out.println("ERROR: Invalid Token " + lex.getCurrent());
-            else System.out.println("ERROR: Unexpected Token " + lex.getCurrent());
+            if (token.getType() == TokenType.ERROR)
+                System.out.println("ERROR: Invalid Token " + token);
+            else System.out.println("ERROR: Unexpected Token " + token);
             System.exit(0);
             return null;
         }
