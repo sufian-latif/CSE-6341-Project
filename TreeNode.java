@@ -14,8 +14,24 @@ public class TreeNode {
         isLeaf = false;
     }
 
+    public Token getToken() {
+        return token;
+    }
+
+    public TreeNode getLeft() {
+        return left;
+    }
+
+    public TreeNode getRight() {
+        return right;
+    }
+
     public String toString() {
         if (isLeaf) return token.getValue();
         return "(" + left + "." + right + ")";
+    }
+
+    public boolean isLeaf() {
+        return isLeaf;
     }
 }
