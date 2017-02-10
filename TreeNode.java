@@ -28,7 +28,22 @@ public class TreeNode {
 
     public String toString() {
         if (isLeaf) return token.getValue();
-        return "(" + left + "." + right + ")";
+        StringBuilder strb = new StringBuilder("(");
+        TreeNode t;
+
+        for (t = this; !t.isLeaf(); t = t.getRight()) {
+            strb.append(t.getLeft());
+            if (!t.getRight().isLeaf()) {
+                strb.append(" ");
+            }
+        }
+
+        if (t.getToken().getValue().equals("NIL")) {
+            strb.append(")");
+        } else {
+            strb.append(" . " + t.getToken());
+        }
+        return strb.toString();
     }
 
     public boolean isLeaf() {
