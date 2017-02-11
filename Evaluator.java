@@ -66,7 +66,7 @@ public class Evaluator {
             case QUOTE:
                 return s.getRight().getLeft();
             case COND:
-
+                return evalCond(s);
             default:
                 throw new Exception("Invalid function: " + func);
         }
@@ -177,5 +177,27 @@ public class Evaluator {
             default:
                 throw new Exception("Invalid function: " + func);
         }
+    }
+
+    private TreeNode evalCond(TreeNode s) throws Exception {
+        for(TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
+            if(!isList(t.getLeft())) {
+                throw new Exception(t.getLeft() + " is not a list");
+            }
+            if(getLength(t.getLeft()) != 2) {
+                throw new Exception(t.getLeft() + ": Expected 2 elements, found " + getLength(t.getLeft()));
+            }
+        }
+
+        for(TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
+            TreeNode b = eval(t.getLeft().getLeft());
+            TreeNode e = eval(t.getLeft().getRight().getLeft());
+
+            if(!b.getToken().getValue().equals(NIL)) {
+                return e;
+            }
+        }
+
+        throw new Exception("No condition matched");
     }
 }
