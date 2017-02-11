@@ -66,7 +66,7 @@ public class Evaluator {
             case QUOTE:
                 return s.getRight().getLeft();
             case COND:
-
+                return evalCond(s);
             default:
                 throw new Exception("Invalid function: " + func);
         }
@@ -122,7 +122,7 @@ public class Evaluator {
         TreeNode s1 = eval(s.getRight().getLeft());
         TreeNode s2 = eval(s.getRight().getRight().getLeft());
 
-        if(func.equals(EQ) &&
+        if (func.equals(EQ) &&
                 s1.isLeaf() && s1.getToken().getType() == TokenType.LITERAL &&
                 s2.isLeaf() && s2.getToken().getType() == TokenType.LITERAL) {
             return new TreeNode(new Token(TokenType.LITERAL,
@@ -173,9 +173,31 @@ public class Evaluator {
                         s1.isLeaf() && s1.getToken().getType() == TokenType.NUMERIC ? T : NIL));
             case NULL:
                 return new TreeNode(new Token(TokenType.LITERAL,
-                        s1.isLeaf() && s1.getToken().getValue().equals(NIL)  ? T : NIL));
+                        s1.isLeaf() && s1.getToken().getValue().equals(NIL) ? T : NIL));
             default:
                 throw new Exception("Invalid function: " + func);
         }
+    }
+
+    private TreeNode evalCond(TreeNode s) throws Exception {
+        for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
+            if (!isList(t.getLeft())) {
+                throw new Exception(t.getLeft() + " is not a list");
+            }
+            if (getLength(t.getLeft()) != 2) {
+                throw new Exception(t.getLeft() + ": Expected 2 elements, found " + getLength(t.getLeft()));
+            }
+        }
+
+        for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
+            TreeNode b = eval(t.getLeft().getLeft());
+            TreeNode e = eval(t.getLeft().getRight().getLeft());
+
+            if (!b.getToken().getValue().equals(NIL)) {
+                return e;
+            }
+        }
+
+        throw new Exception("No condition matched");
     }
 }
