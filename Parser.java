@@ -15,6 +15,7 @@ public class Parser {
                 System.out.println(evaluator.eval(parseExpr()));
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
+                System.exit(0);
             }
         } while (!lex.getCurrent().getType().equals(TokenType.EOF));
     }
