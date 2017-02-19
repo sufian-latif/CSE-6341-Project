@@ -44,6 +44,10 @@ public class Evaluator {
             throw new Exception("List contains less than 2 elements: " + s);
         }
 
+        if(!s.getLeft().isLeaf()) {
+            throw new Exception("Function expected, found " + s.getLeft());
+        }
+
         String func = s.getLeft().getToken().getValue();
 
         switch (func) {
