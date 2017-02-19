@@ -1,22 +1,5 @@
 public class Evaluator {
 
-    private static final String T = "T";
-    private static final String NIL = "NIL";
-    private static final String PLUS = "PLUS";
-    private static final String MINUS = "MINUS";
-    private static final String TIMES = "TIMES";
-    private static final String LESS = "LESS";
-    private static final String GREATER = "GREATER";
-    private static final String EQ = "EQ";
-    private static final String ATOM = "ATOM";
-    private static final String INT = "INT";
-    private static final String NULL = "NULL";
-    private static final String CAR = "CAR";
-    private static final String CDR = "CDR";
-    private static final String CONS = "CONS";
-    private static final String QUOTE = "QUOTE";
-    private static final String COND = "COND";
-
     public TreeNode eval(TreeNode s) throws Exception {
         if (s.isLeaf()) {
             return evalAtom(s);
@@ -26,8 +9,8 @@ public class Evaluator {
     }
 
     private TreeNode evalAtom(TreeNode s) throws Exception {
-        if (s.getToken().getValue().equals(T) ||
-                s.getToken().getValue().equals(NIL) ||
+        if (s.getToken().getValue().equals(Constants.T) ||
+                s.getToken().getValue().equals(Constants.NIL) ||
                 s.getToken().getType() == TokenType.NUMERIC) {
             return s;
         }
@@ -51,25 +34,25 @@ public class Evaluator {
         String func = s.getLeft().getToken().getValue();
 
         switch (func) {
-            case CAR:
-            case CDR:
+            case Constants.CAR:
+            case Constants.CDR:
                 return evalListOp(s);
-            case CONS:
+            case Constants.CONS:
                 return evalCons(s);
-            case PLUS:
-            case MINUS:
-            case TIMES:
-            case LESS:
-            case GREATER:
-            case EQ:
+            case Constants.PLUS:
+            case Constants.MINUS:
+            case Constants.TIMES:
+            case Constants.LESS:
+            case Constants.GREATER:
+            case Constants.EQ:
                 return evalArithmetic(s);
-            case ATOM:
-            case INT:
-            case NULL:
+            case Constants.ATOM:
+            case Constants.INT:
+            case Constants.NULL:
                 return evalToken(s);
-            case QUOTE:
+            case Constants.QUOTE:
                 return s.getRight().getLeft();
-            case COND:
+            case Constants.COND:
                 return evalCond(s);
             default:
                 throw new Exception("Invalid function: " + func);
@@ -77,7 +60,7 @@ public class Evaluator {
     }
 
     private boolean isList(TreeNode s) {
-        return (s.isLeaf() && s.getToken().getValue().equals(NIL)) || isList(s.getRight());
+        return (s.isLeaf() && s.getToken().getValue().equals(Constants.NIL)) || isList(s.getRight());
     }
 
     private int getLength(TreeNode s) {
@@ -97,9 +80,9 @@ public class Evaluator {
         }
 
         switch (func) {
-            case CAR:
+            case Constants.CAR:
                 return s1.getLeft();
-            case CDR:
+            case Constants.CDR:
                 return s1.getRight();
             default:
                 throw new Exception("Invalid function: " + func);
@@ -126,11 +109,11 @@ public class Evaluator {
         TreeNode s1 = eval(s.getRight().getLeft());
         TreeNode s2 = eval(s.getRight().getRight().getLeft());
 
-        if (func.equals(EQ) &&
+        if (func.equals(Constants.EQ) &&
                 s1.isLeaf() && s1.getToken().getType() == TokenType.LITERAL &&
                 s2.isLeaf() && s2.getToken().getType() == TokenType.LITERAL) {
             return new TreeNode(new Token(TokenType.LITERAL,
-                    s1.getToken().getValue().equals(s2.getToken().getValue()) ? T : NIL));
+                    s1.getToken().getValue().equals(s2.getToken().getValue()) ? Constants.T : Constants.NIL));
         }
 
         if (s1.getToken().getType() != TokenType.NUMERIC) {
@@ -143,18 +126,18 @@ public class Evaluator {
         int i1 = Integer.parseInt(s1.getToken().getValue());
         int i2 = Integer.parseInt(s2.getToken().getValue());
         switch (func) {
-            case PLUS:
+            case Constants.PLUS:
                 return new TreeNode(new Token(TokenType.NUMERIC, Integer.toString(i1 + i2)));
-            case MINUS:
+            case Constants.MINUS:
                 return new TreeNode(new Token(TokenType.NUMERIC, Integer.toString(i1 - i2)));
-            case TIMES:
+            case Constants.TIMES:
                 return new TreeNode(new Token(TokenType.NUMERIC, Integer.toString(i1 * i2)));
-            case LESS:
-                return new TreeNode(new Token(TokenType.LITERAL, i1 < i2 ? T : NIL));
-            case GREATER:
-                return new TreeNode(new Token(TokenType.LITERAL, i1 > i2 ? T : NIL));
-            case EQ:
-                return new TreeNode(new Token(TokenType.LITERAL, i1 == i2 ? T : NIL));
+            case Constants.LESS:
+                return new TreeNode(new Token(TokenType.LITERAL, i1 < i2 ? Constants.T : Constants.NIL));
+            case Constants.GREATER:
+                return new TreeNode(new Token(TokenType.LITERAL, i1 > i2 ? Constants.T : Constants.NIL));
+            case Constants.EQ:
+                return new TreeNode(new Token(TokenType.LITERAL, i1 == i2 ? Constants.T : Constants.NIL));
             default:
                 throw new Exception("Invalid function: " + func);
         }
@@ -170,14 +153,14 @@ public class Evaluator {
         TreeNode s1 = eval(s.getRight().getLeft());
 
         switch (func) {
-            case ATOM:
-                return new TreeNode(new Token(TokenType.LITERAL, s1.isLeaf() ? T : NIL));
-            case INT:
+            case Constants.ATOM:
+                return new TreeNode(new Token(TokenType.LITERAL, s1.isLeaf() ? Constants.T : Constants.NIL));
+            case Constants.INT:
                 return new TreeNode(new Token(TokenType.LITERAL,
-                        s1.isLeaf() && s1.getToken().getType() == TokenType.NUMERIC ? T : NIL));
-            case NULL:
+                        s1.isLeaf() && s1.getToken().getType() == TokenType.NUMERIC ? Constants.T : Constants.NIL));
+            case Constants.NULL:
                 return new TreeNode(new Token(TokenType.LITERAL,
-                        s1.isLeaf() && s1.getToken().getValue().equals(NIL) ? T : NIL));
+                        s1.isLeaf() && s1.getToken().getValue().equals(Constants.NIL) ? Constants.T : Constants.NIL));
             default:
                 throw new Exception("Invalid function: " + func);
         }
@@ -197,7 +180,7 @@ public class Evaluator {
             TreeNode b = eval(t.getLeft().getLeft());
             TreeNode e = eval(t.getLeft().getRight().getLeft());
 
-            if (!b.getToken().getValue().equals(NIL)) {
+            if (!b.getToken().getValue().equals(Constants.NIL)) {
                 return e;
             }
         }
