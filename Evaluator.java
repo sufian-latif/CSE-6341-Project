@@ -27,7 +27,7 @@ public class Evaluator {
             throw new Exception("List contains less than 2 elements: " + s);
         }
 
-        if(!s.getLeft().isLeaf()) {
+        if (!s.getLeft().isLeaf()) {
             throw new Exception("Function expected, found " + s.getLeft());
         }
 
@@ -60,11 +60,15 @@ public class Evaluator {
     }
 
     private boolean isList(TreeNode s) {
-        return (s.isLeaf() && s.getToken().getValue().equals(Constants.NIL)) || isList(s.getRight());
+        return (isNil(s) || isList(s.getRight()));
     }
 
     private int getLength(TreeNode s) {
         return s.isLeaf() ? 0 : 1 + getLength(s.getRight());
+    }
+
+    private boolean isNil(TreeNode s) {
+        return s.isLeaf() && s.getToken().getValue().equals(Constants.NIL);
     }
 
     private TreeNode evalListOp(TreeNode s) throws Exception {
@@ -159,8 +163,7 @@ public class Evaluator {
                 return new TreeNode(new Token(TokenType.LITERAL,
                         s1.isLeaf() && s1.getToken().getType() == TokenType.NUMERIC ? Constants.T : Constants.NIL));
             case Constants.NULL:
-                return new TreeNode(new Token(TokenType.LITERAL,
-                        s1.isLeaf() && s1.getToken().getValue().equals(Constants.NIL) ? Constants.T : Constants.NIL));
+                return new TreeNode(new Token(TokenType.LITERAL, isNil(s1) ? Constants.T : Constants.NIL));
             default:
                 throw new Exception("Invalid function: " + func);
         }
@@ -180,7 +183,7 @@ public class Evaluator {
             TreeNode b = eval(t.getLeft().getLeft());
             TreeNode e = eval(t.getLeft().getRight().getLeft());
 
-            if (!b.getToken().getValue().equals(Constants.NIL)) {
+            if (!isNil(b)) {
                 return e;
             }
         }
