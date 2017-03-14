@@ -3,16 +3,18 @@ import java.io.IOException;
 public class Parser {
     private LexicalAnalyzer lex;
     private Evaluator evaluator;
+    private TreeNode dList;
 
     public Parser(LexicalAnalyzer lex) {
         this.lex = lex;
         evaluator = new Evaluator();
+        dList = TreeNode.NIL;
     }
 
     public void parseStart() throws IOException {
         do {
             try {
-                System.out.println(evaluator.eval(parseExpr()));
+                System.out.println(evaluator.eval(parseExpr(), TreeNode.NIL, dList));
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
                 System.exit(0);

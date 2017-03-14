@@ -1,24 +1,26 @@
 public class Evaluator {
 
-    public TreeNode eval(TreeNode s) throws Exception {
+    public TreeNode eval(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
         if (s.isLeaf()) {
-            return evalAtom(s);
+            return evalAtom(s, aList);
         }
 
-        return evalList(s);
+        return evalList(s, aList, dList);
     }
 
-    private TreeNode evalAtom(TreeNode s) throws Exception {
-        if (s.getToken().getValue().equals(Constants.T) ||
-                s.getToken().getValue().equals(Constants.NIL) ||
-                s.getToken().getType() == TokenType.NUMERIC) {
+    private TreeNode evalAtom(TreeNode s, TreeNode aList) throws Exception {
+        Token token = s.getToken();
+
+        if (token.getValue().equals(Constants.T) ||
+                token.getValue().equals(Constants.NIL) ||
+                token.getType() == TokenType.NUMERIC) {
             return s;
         }
 
-        throw new Exception("Invalid atom: " + s.getToken().getValue());
+        return getVal(token, aList);
     }
 
-    private TreeNode evalList(TreeNode s) throws Exception {
+    private TreeNode evalList(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
         if (!isList(s)) {
             throw new Exception("Not a list: " + s);
         }
@@ -36,27 +38,63 @@ public class Evaluator {
         switch (func) {
             case Constants.CAR:
             case Constants.CDR:
-                return evalListOp(s);
+                return evalListOp(s, aList, dList);
             case Constants.CONS:
-                return evalCons(s);
+                return evalCons(s, aList, dList);
             case Constants.PLUS:
             case Constants.MINUS:
             case Constants.TIMES:
             case Constants.LESS:
             case Constants.GREATER:
             case Constants.EQ:
-                return evalArithmetic(s);
+                return evalArithmetic(s, aList, dList);
             case Constants.ATOM:
             case Constants.INT:
             case Constants.NULL:
-                return evalToken(s);
+                return evalToken(s, aList, dList);
             case Constants.QUOTE:
                 return s.getRight().getLeft();
             case Constants.COND:
-                return evalCond(s);
+                return evalCond(s, aList, dList);
             default:
                 throw new Exception("Invalid function: " + func);
         }
+    }
+
+    private boolean isKeyword(String s) {
+        for (String word : Constants.keywords) {
+            if (s.equals(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+/*
+    private boolean bound(Token token, TreeNode aList) {
+        for (TreeNode t = aList; !t.isLeaf(); t = t.getRight()) {
+            if (t.getLeft().getLeft().getToken().getValue().equals(token.getValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+*/
+
+    private TreeNode getVal(Token token, TreeNode aList) throws Exception {
+        if (isKeyword(token.getValue())) {
+            throw new Exception("Atom is a keyword: " + token.getValue());
+        }
+
+        for (TreeNode t = aList; !t.isLeaf(); t = t.getRight()) {
+            TreeNode pair = t.getLeft();
+
+            if (pair.getLeft().getToken().getValue().equals(token.getValue())) {
+                return pair.getRight();
+            }
+        }
+
+        throw new Exception("Unbound atom: " + token.getValue());
     }
 
     private boolean isList(TreeNode s) {
@@ -71,13 +109,13 @@ public class Evaluator {
         return s.isLeaf() && s.getToken().getValue().equals(Constants.NIL);
     }
 
-    private TreeNode evalListOp(TreeNode s) throws Exception {
+    private TreeNode evalListOp(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
         if (getLength(s) != 2) {
             throw new Exception(s.getLeft() + ": Expected 2 elements, found " + getLength(s) + " in " + s);
         }
 
         String func = s.getLeft().getToken().getValue();
-        TreeNode s1 = eval(s.getRight().getLeft());
+        TreeNode s1 = eval(s.getRight().getLeft(), aList, dList);
 
         if (s1.isLeaf()) {
             throw new Exception(s.getLeft() + ": " + s1 + " is an atom");
@@ -93,25 +131,25 @@ public class Evaluator {
         }
     }
 
-    private TreeNode evalCons(TreeNode s) throws Exception {
+    private TreeNode evalCons(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
         if (getLength(s) != 3) {
             throw new Exception(s.getLeft() + ": Expected 3 elements, found " + getLength(s) + " in " + s);
         }
 
-        TreeNode s1 = eval(s.getRight().getLeft());
-        TreeNode s2 = eval(s.getRight().getRight().getLeft());
+        TreeNode s1 = eval(s.getRight().getLeft(), aList, dList);
+        TreeNode s2 = eval(s.getRight().getRight().getLeft(), aList, dList);
 
         return new TreeNode(s1, s2);
     }
 
-    private TreeNode evalArithmetic(TreeNode s) throws Exception {
+    private TreeNode evalArithmetic(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
         if (getLength(s) != 3) {
             throw new Exception(s.getLeft() + ": Expected 3 elements, found " + getLength(s) + " in " + s);
         }
 
         String func = s.getLeft().getToken().getValue();
-        TreeNode s1 = eval(s.getRight().getLeft());
-        TreeNode s2 = eval(s.getRight().getRight().getLeft());
+        TreeNode s1 = eval(s.getRight().getLeft(), aList, dList);
+        TreeNode s2 = eval(s.getRight().getRight().getLeft(), aList, dList);
 
         if (func.equals(Constants.EQ) &&
                 s1.isLeaf() && s1.getToken().getType() == TokenType.LITERAL &&
@@ -147,13 +185,13 @@ public class Evaluator {
 
     }
 
-    private TreeNode evalToken(TreeNode s) throws Exception {
+    private TreeNode evalToken(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
         if (getLength(s) != 2) {
             throw new Exception(s.getLeft() + ": Expected 2 elements, found " + getLength(s) + " in " + s);
         }
 
         String func = s.getLeft().getToken().getValue();
-        TreeNode s1 = eval(s.getRight().getLeft());
+        TreeNode s1 = eval(s.getRight().getLeft(), aList, dList);
 
         switch (func) {
             case Constants.ATOM:
@@ -167,7 +205,7 @@ public class Evaluator {
         }
     }
 
-    private TreeNode evalCond(TreeNode s) throws Exception {
+    private TreeNode evalCond(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
         for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
             if (!isList(t.getLeft())) {
                 throw new Exception(t.getLeft() + " is not a list");
@@ -178,8 +216,8 @@ public class Evaluator {
         }
 
         for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
-            TreeNode b = eval(t.getLeft().getLeft());
-            TreeNode e = eval(t.getLeft().getRight().getLeft());
+            TreeNode b = eval(t.getLeft().getLeft(), aList, dList);
+            TreeNode e = eval(t.getLeft().getRight().getLeft(), aList, dList);
 
             if (!isNil(b)) {
                 return e;
