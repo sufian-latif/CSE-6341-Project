@@ -116,8 +116,7 @@ public class Evaluator {
         if (func.equals(Constants.EQ) &&
                 s1.isLeaf() && s1.getToken().getType() == TokenType.LITERAL &&
                 s2.isLeaf() && s2.getToken().getType() == TokenType.LITERAL) {
-            return new TreeNode(new Token(TokenType.LITERAL,
-                    s1.getToken().getValue().equals(s2.getToken().getValue()) ? Constants.T : Constants.NIL));
+            return s1.getToken().getValue().equals(s2.getToken().getValue()) ? TreeNode.T : TreeNode.NIL;
         }
 
         if (s1.getToken().getType() != TokenType.NUMERIC) {
@@ -137,11 +136,11 @@ public class Evaluator {
             case Constants.TIMES:
                 return new TreeNode(new Token(TokenType.NUMERIC, Integer.toString(i1 * i2)));
             case Constants.LESS:
-                return new TreeNode(new Token(TokenType.LITERAL, i1 < i2 ? Constants.T : Constants.NIL));
+                return i1 < i2 ? TreeNode.T : TreeNode.NIL;
             case Constants.GREATER:
-                return new TreeNode(new Token(TokenType.LITERAL, i1 > i2 ? Constants.T : Constants.NIL));
+                return i1 > i2 ? TreeNode.T : TreeNode.NIL;
             case Constants.EQ:
-                return new TreeNode(new Token(TokenType.LITERAL, i1 == i2 ? Constants.T : Constants.NIL));
+                return i1 == i2 ? TreeNode.T : TreeNode.NIL;
             default:
                 throw new Exception("Invalid function: " + func);
         }
@@ -158,12 +157,11 @@ public class Evaluator {
 
         switch (func) {
             case Constants.ATOM:
-                return new TreeNode(new Token(TokenType.LITERAL, s1.isLeaf() ? Constants.T : Constants.NIL));
+                return s1.isLeaf() ? TreeNode.T : TreeNode.NIL;
             case Constants.INT:
-                return new TreeNode(new Token(TokenType.LITERAL,
-                        s1.isLeaf() && s1.getToken().getType() == TokenType.NUMERIC ? Constants.T : Constants.NIL));
+                return s1.isLeaf() && s1.getToken().getType() == TokenType.NUMERIC ? TreeNode.T : TreeNode.NIL;
             case Constants.NULL:
-                return new TreeNode(new Token(TokenType.LITERAL, isNil(s1) ? Constants.T : Constants.NIL));
+                return isNil(s1) ? TreeNode.T : TreeNode.NIL;
             default:
                 throw new Exception("Invalid function: " + func);
         }
@@ -190,4 +188,6 @@ public class Evaluator {
 
         throw new Exception("No condition matched");
     }
+
+
 }

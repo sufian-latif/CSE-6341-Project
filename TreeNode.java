@@ -1,4 +1,8 @@
 public class TreeNode {
+
+    public final static TreeNode NIL = new TreeNode(Token.NIL);
+    public final static TreeNode T = new TreeNode(Token.T);
+
     private Token token;
     private TreeNode left, right;
     private boolean isLeaf;
