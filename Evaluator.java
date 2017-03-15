@@ -56,6 +56,8 @@ public class Evaluator {
                 return s.getRight().getLeft();
             case Constants.COND:
                 return evalCond(s, aList, dList);
+            case Constants.DEFUN:
+                return evalDefun(s);
             default:
                 throw new Exception("Invalid function: " + func);
         }
@@ -227,5 +229,37 @@ public class Evaluator {
         throw new Exception("No condition matched");
     }
 
+    private TreeNode evalDefun(TreeNode s) throws Exception {
+        if (getLength(s) != 4) {
+            throw new Exception(s.getLeft() + ": Expected 4 elements, found " + getLength(s) + " in " + s);
+        }
 
+        TreeNode name = s.getRight().getLeft();
+        if (!name.isLeaf() || name.getToken().getType() != TokenType.LITERAL) {
+            throw new Exception(name + " is not a literal atom");
+        }
+        if (isKeyword(name.getToken().getValue())) {
+            throw new Exception("Function name is a keyword: " + name.getToken().getValue());
+        }
+
+        TreeNode params = s.getRight().getRight().getLeft();
+        if(!isList(params)) {
+            throw new Exception(params + " is not a list");
+        }
+
+        for (TreeNode t = params; !t.isLeaf(); t = t.getRight()) {
+            TreeNode fp = t.getLeft();
+
+            if (!fp.isLeaf() || fp.getToken().getType() != TokenType.LITERAL) {
+                throw new Exception(name + " " + params + " : " + fp + " is not a literal atom");
+            }
+            if (isKeyword(fp.getToken().getValue())) {
+                throw new Exception(name + " " + params + " : " + fp + " is a keyword");
+            }
+        }
+
+        TreeNode body = s.getRight().getRight().getRight().getLeft();
+
+        return new TreeNode(name, new TreeNode(params, body));
+    }
 }

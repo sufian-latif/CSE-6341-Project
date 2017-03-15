@@ -19,7 +19,8 @@ public class Constants {
     public static final String CONS = "CONS";
     public static final String QUOTE = "QUOTE";
     public static final String COND = "COND";
+    public static final String DEFUN = "DEFUN";
     
     public static final String[] keywords = { T, NIL, PLUS, MINUS, TIMES, LESS, GREATER, EQ,
-            ATOM, INT, NULL, CAR, CDR, CONS, QUOTE, COND };
+            ATOM, INT, NULL, CAR, CDR, CONS, QUOTE, COND, DEFUN };
 }

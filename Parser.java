@@ -14,7 +14,16 @@ public class Parser {
     public void parseStart() throws IOException {
         do {
             try {
-                System.out.println(evaluator.eval(parseExpr(), TreeNode.NIL, dList));
+                TreeNode expr = parseExpr();
+
+                if(!expr.isLeaf() && expr.getLeft().isLeaf()
+                        && expr.getLeft().getToken().getValue().equals(Constants.DEFUN)) {
+                    TreeNode newFunc = evaluator.eval(expr, TreeNode.NIL, dList);
+                    dList = new TreeNode(newFunc, dList);
+                    System.out.println(newFunc.getLeft());
+                } else {
+                    System.out.println(evaluator.eval(expr, TreeNode.NIL, dList));
+                }
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
                 System.exit(0);
