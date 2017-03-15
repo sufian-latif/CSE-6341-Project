@@ -25,10 +25,6 @@ public class Evaluator {
             throw new Exception("Not a list: " + s);
         }
 
-        if (getLength(s) < 2) {
-            throw new Exception("List contains less than 2 elements: " + s);
-        }
-
         if (!s.getLeft().isLeaf()) {
             throw new Exception("Function expected, found " + s.getLeft());
         }
@@ -59,7 +55,7 @@ public class Evaluator {
             case Constants.DEFUN:
                 return evalDefun(s);
             default:
-                throw new Exception("Invalid function: " + func);
+                return evalCustom(s, aList, dList);
         }
     }
 
@@ -72,22 +68,7 @@ public class Evaluator {
         return false;
     }
 
-/*
-    private boolean bound(Token token, TreeNode aList) {
-        for (TreeNode t = aList; !t.isLeaf(); t = t.getRight()) {
-            if (t.getLeft().getLeft().getToken().getValue().equals(token.getValue())) {
-                return true;
-            }
-        }
-        return false;
-    }
-*/
-
     private TreeNode getVal(Token token, TreeNode aList) throws Exception {
-        if (isKeyword(token.getValue())) {
-            throw new Exception("Atom is a keyword: " + token.getValue());
-        }
-
         for (TreeNode t = aList; !t.isLeaf(); t = t.getRight()) {
             TreeNode pair = t.getLeft();
 
@@ -99,12 +80,22 @@ public class Evaluator {
         throw new Exception("Unbound atom: " + token.getValue());
     }
 
+    private TreeNode addPairs(TreeNode x, TreeNode y, TreeNode aList) {
+        if (length(x) == 0) {
+            return aList;
+        }
+
+        TreeNode pair = new TreeNode(x.getLeft(), y.getLeft());
+        TreeNode rest = addPairs(x.getRight(), y.getRight(), aList);
+        return new TreeNode(pair, rest);
+    }
+
     private boolean isList(TreeNode s) {
         return (isNil(s) || isList(s.getRight()));
     }
 
-    private int getLength(TreeNode s) {
-        return s.isLeaf() ? 0 : 1 + getLength(s.getRight());
+    private int length(TreeNode s) {
+        return s.isLeaf() ? 0 : 1 + length(s.getRight());
     }
 
     private boolean isNil(TreeNode s) {
@@ -112,8 +103,8 @@ public class Evaluator {
     }
 
     private TreeNode evalListOp(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
-        if (getLength(s) != 2) {
-            throw new Exception(s.getLeft() + ": Expected 2 elements, found " + getLength(s) + " in " + s);
+        if (length(s) != 2) {
+            throw new Exception(s.getLeft() + ": Expected 2 elements, found " + length(s) + " in " + s);
         }
 
         String func = s.getLeft().getToken().getValue();
@@ -134,8 +125,8 @@ public class Evaluator {
     }
 
     private TreeNode evalCons(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
-        if (getLength(s) != 3) {
-            throw new Exception(s.getLeft() + ": Expected 3 elements, found " + getLength(s) + " in " + s);
+        if (length(s) != 3) {
+            throw new Exception(s.getLeft() + ": Expected 3 elements, found " + length(s) + " in " + s);
         }
 
         TreeNode s1 = eval(s.getRight().getLeft(), aList, dList);
@@ -145,8 +136,8 @@ public class Evaluator {
     }
 
     private TreeNode evalArithmetic(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
-        if (getLength(s) != 3) {
-            throw new Exception(s.getLeft() + ": Expected 3 elements, found " + getLength(s) + " in " + s);
+        if (length(s) != 3) {
+            throw new Exception(s.getLeft() + ": Expected 3 elements, found " + length(s) + " in " + s);
         }
 
         String func = s.getLeft().getToken().getValue();
@@ -188,8 +179,8 @@ public class Evaluator {
     }
 
     private TreeNode evalToken(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
-        if (getLength(s) != 2) {
-            throw new Exception(s.getLeft() + ": Expected 2 elements, found " + getLength(s) + " in " + s);
+        if (length(s) != 2) {
+            throw new Exception(s.getLeft() + ": Expected 2 elements, found " + length(s) + " in " + s);
         }
 
         String func = s.getLeft().getToken().getValue();
@@ -212,8 +203,8 @@ public class Evaluator {
             if (!isList(t.getLeft())) {
                 throw new Exception(t.getLeft() + " is not a list");
             }
-            if (getLength(t.getLeft()) != 2) {
-                throw new Exception(t.getLeft() + ": Expected 2 elements, found " + getLength(t.getLeft()));
+            if (length(t.getLeft()) != 2) {
+                throw new Exception(t.getLeft() + ": Expected 2 elements, found " + length(t.getLeft()));
             }
         }
 
@@ -230,8 +221,8 @@ public class Evaluator {
     }
 
     private TreeNode evalDefun(TreeNode s) throws Exception {
-        if (getLength(s) != 4) {
-            throw new Exception(s.getLeft() + ": Expected 4 elements, found " + getLength(s) + " in " + s);
+        if (length(s) != 4) {
+            throw new Exception(s.getLeft() + ": Expected 4 elements, found " + length(s) + " in " + s);
         }
 
         TreeNode name = s.getRight().getLeft();
@@ -243,7 +234,7 @@ public class Evaluator {
         }
 
         TreeNode params = s.getRight().getRight().getLeft();
-        if(!isList(params)) {
+        if (!isList(params)) {
             throw new Exception(params + " is not a list");
         }
 
@@ -261,5 +252,27 @@ public class Evaluator {
         TreeNode body = s.getRight().getRight().getRight().getLeft();
 
         return new TreeNode(name, new TreeNode(params, body));
+    }
+
+    private TreeNode evalCustom(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
+        TreeNode fName = s.getLeft();
+        TreeNode func = getVal(fName.getToken(), dList);
+
+        TreeNode formals = func.getLeft();
+        TreeNode actuals = evalParams(s.getRight(), aList, dList);
+
+        if (length(formals) != length(actuals)) {
+            throw new Exception(fName + ": " + length(formals) + " parameters expected, found " + length(actuals));
+        }
+
+        return eval(func.getRight(), addPairs(formals, actuals, aList), dList);
+    }
+
+    private TreeNode evalParams(TreeNode s, TreeNode aList, TreeNode dList) throws Exception {
+        if(length(s) == 0) {
+            return TreeNode.NIL;
+        }
+
+        return new TreeNode(eval(s.getLeft(), aList, dList), evalParams(s.getRight(), aList, dList));
     }
 }

@@ -21,6 +21,7 @@ public class Parser {
                     TreeNode newFunc = evaluator.eval(expr, TreeNode.NIL, dList);
                     dList = new TreeNode(newFunc, dList);
                     System.out.println(newFunc.getLeft());
+                    //System.out.println(dList);
                 } else {
                     System.out.println(evaluator.eval(expr, TreeNode.NIL, dList));
                 }
