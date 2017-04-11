@@ -247,6 +247,12 @@ public class Evaluator {
             if (isKeyword(fp.getToken().getValue())) {
                 throw new Exception(name + " " + params + " : " + fp + " is a keyword");
             }
+
+            for (TreeNode tt = params; !tt.isLeaf() && tt != t; tt = tt.getRight()) {
+                if(tt.getLeft().getToken().getValue().equals(fp.getToken().getValue())) {
+                    throw new Exception("Duplicate formal parameter " + fp.getToken().getValue());
+                }
+            }
         }
 
         TreeNode body = s.getRight().getRight().getRight().getLeft();
