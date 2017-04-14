@@ -2,17 +2,22 @@ import java.io.IOException;
 
 public class Parser {
     private LexicalAnalyzer lex;
-    private Evaluator evaluator;
+    private TypeChecker typeChecker;
 
     public Parser(LexicalAnalyzer lex) {
         this.lex = lex;
-        evaluator = new Evaluator();
+        typeChecker = new TypeChecker();
     }
 
     public void parseStart() throws IOException {
         do {
             try {
-                System.out.println(evaluator.eval(parseExpr()));
+                TreeNode s = parseExpr();
+                if (typeChecker.isWellTyped(s)) {
+                    System.out.println(s);
+                } else {
+                    System.out.println("TYPE ERROR: Expression is not well-typed.");
+                }
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
                 System.exit(0);

@@ -4,6 +4,7 @@ public class Constants {
     public static final String RPAREN = ")";
 
     public static final String T = "T";
+    public static final String F = "F";
     public static final String NIL = "NIL";
     public static final String PLUS = "PLUS";
     public static final String MINUS = "MINUS";
