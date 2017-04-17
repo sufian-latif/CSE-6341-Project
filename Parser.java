@@ -13,13 +13,16 @@ public class Parser {
         do {
             try {
                 TreeNode s = parseExpr();
-                if (typeChecker.isWellTyped(s)) {
-                    System.out.println(s);
-                } else {
-                    System.out.println("TYPE ERROR: Expression is not well-typed.");
+                if (!typeChecker.isWellTyped(s)) {
+                    throw new Exception("TYPE ERROR: Expression is not well-typed");
                 }
+
+                if (!typeChecker.isEmptyListSafe(s)) {
+                    throw new Exception("EMPTY LIST ERROR: CAR/CDR on empty list");
+                }
+                System.out.println(s);
             } catch (Exception e) {
-                System.out.println("ERROR: " + e.getMessage());
+                System.out.println(e.getMessage());
                 System.exit(0);
             }
         } while (!lex.getCurrent().getType().equals(TokenType.EOF));

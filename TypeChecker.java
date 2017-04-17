@@ -73,4 +73,46 @@ public class TypeChecker {
                 return false;
         }
     }
+
+    public boolean isEmptyListSafe(TreeNode s) {
+        if(s.isLeaf()) {
+            return true;
+        }
+
+        String func = s.getLeft().getToken().getValue();
+
+        switch (func) {
+            case Constants.CAR:
+            case Constants.CDR:
+                return minLength(s.getRight().getLeft()) > 0;
+            default:
+                return true;
+        }
+    }
+
+    private int minLength(TreeNode s) {
+        if (s.isLeaf() && s.getToken().getValue().equals(Constants.NIL)) {
+            return 0;
+        }
+
+        String func = s.getLeft().getToken().getValue();
+
+        switch (func) {
+            case Constants.CONS:
+                return 1 + minLength(s.getRight().getRight().getLeft());
+            case Constants.COND:
+                int min = minLength(s.getRight().getLeft().getRight().getLeft());
+
+                for(TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
+                    int len = minLength(t.getLeft().getRight().getLeft());
+                    if (len < min) {
+                        min = len;
+                    }
+                }
+
+                return min;
+        }
+
+        return -1;
+    }
 }
