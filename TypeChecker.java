@@ -23,7 +23,7 @@ public class TypeChecker {
 
     public boolean isWellTyped(TreeNode s) {
         if (s.isLeaf()) {
-            return true;
+            return getType(s) != Type.UNKNOWN;
         }
 
         String func = s.getLeft().getToken().getValue();
