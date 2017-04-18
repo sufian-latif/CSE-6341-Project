@@ -18,59 +18,60 @@ public class TypeChecker {
             }
         }
 
-        return Type.LIST;
-    }
-
-    public boolean isWellTyped(TreeNode s) {
-        if (s.isLeaf()) {
-            return getType(s) != Type.UNKNOWN;
+        if (!s.getLeft().isLeaf()) {
+            return Type.UNKNOWN;
         }
 
         String func = s.getLeft().getToken().getValue();
 
         switch (func) {
             case Constants.CAR:
+                return getLength(s) == 2 && getType(s.getRight().getLeft()) == Type.LIST ? Type.NAT : Type.UNKNOWN;
             case Constants.CDR:
-                return getLength(s) == 2 && getType(s.getRight().getLeft()) == Type.LIST;
+                return getLength(s) == 2 && getType(s.getRight().getLeft()) == Type.LIST ? Type.LIST : Type.UNKNOWN;
             case Constants.CONS:
                 return getLength(s) == 3 && getType(s.getRight().getLeft()) == Type.NAT
-                        && getType(s.getRight().getRight().getLeft()) == Type.LIST;
+                        && getType(s.getRight().getRight().getLeft()) == Type.LIST ? Type.LIST : Type.UNKNOWN;
             case Constants.ATOM:
             case Constants.INT:
-                return getLength(s) == 2;
+                return getLength(s) == 2 && getType(s.getRight().getLeft()) != Type.UNKNOWN ? Type.BOOL : Type.UNKNOWN;
             case Constants.EQ:
-            case Constants.PLUS:
-            case Constants.LESS:
                 return getLength(s) == 3 && getType(s.getRight().getLeft()) == Type.NAT
-                        && getType(s.getRight().getRight().getLeft()) == Type.NAT;
+                        && getType(s.getRight().getRight().getLeft()) == Type.NAT ? Type.BOOL : Type.UNKNOWN;
             case Constants.NULL:
-                return getLength(s) == 2 && getType(s.getRight().getLeft()) == Type.LIST;
+                return getLength(s) == 2 && getType(s.getRight().getLeft()) == Type.LIST ? Type.BOOL : Type.UNKNOWN;
+            case Constants.PLUS:
+                return getLength(s) == 3 && getType(s.getRight().getLeft()) == Type.NAT
+                        && getType(s.getRight().getRight().getLeft()) == Type.NAT ? Type.NAT : Type.UNKNOWN;
+            case Constants.LESS:
+                return getLength(s) == 3 && getType(s.getLeft().getRight()) == Type.NAT
+                        && getType(s.getRight().getRight().getLeft()) == Type.NAT ? Type.BOOL : Type.UNKNOWN;
             case Constants.COND:
                 if (getLength(s) < 2) {
-                    return false;
+                    return Type.UNKNOWN;
                 }
 
                 for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
-                    if (t.getLeft().isLeaf() || getLength(t.getLeft()) != 2) {
-                        return false;
+                    if (t.getLeft().isLeaf() || getLength(t.getLeft()) != 2
+                            || getType(s.getLeft().getLeft()) != Type.BOOL) {
+                        return Type.UNKNOWN;
                     }
                 }
 
                 Type expType = getType(s.getRight().getLeft().getRight().getLeft());
+                if (expType == Type.UNKNOWN) {
+                    return Type.UNKNOWN;
+                }
 
-                for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
-                    if(getType(t.getLeft().getLeft()) != Type.BOOL) {
-                        return false;
-                    }
-
+                for(TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
                     if (getType(t.getLeft().getRight().getLeft()) != expType) {
-                        return false;
+                        return Type.UNKNOWN;
                     }
                 }
 
-                return true;
+                return expType;
             default:
-                return false;
+                return Type.UNKNOWN;
         }
     }
 

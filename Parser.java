@@ -13,7 +13,7 @@ public class Parser {
         do {
             try {
                 TreeNode s = parseExpr();
-                if (!typeChecker.isWellTyped(s)) {
+                if (typeChecker.getType(s) == Type.UNKNOWN) {
                     throw new Exception("TYPE ERROR: Expression is not well-typed");
                 }
 
