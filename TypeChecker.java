@@ -53,7 +53,7 @@ public class TypeChecker {
 
                 for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
                     if (t.getLeft().isLeaf() || getLength(t.getLeft()) != 2
-                            || getType(s.getLeft().getLeft()) != Type.BOOL) {
+                            || getType(t.getLeft().getLeft()) != Type.BOOL) {
                         return Type.UNKNOWN;
                     }
                 }
