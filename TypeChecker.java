@@ -36,6 +36,7 @@ public class TypeChecker {
             case Constants.INT:
                 return getLength(s) == 2 && getType(s.getRight().getLeft()) != Type.UNKNOWN ? Type.BOOL : Type.UNKNOWN;
             case Constants.EQ:
+            case Constants.LESS:
                 return getLength(s) == 3 && getType(s.getRight().getLeft()) == Type.NAT
                         && getType(s.getRight().getRight().getLeft()) == Type.NAT ? Type.BOOL : Type.UNKNOWN;
             case Constants.NULL:
@@ -43,9 +44,6 @@ public class TypeChecker {
             case Constants.PLUS:
                 return getLength(s) == 3 && getType(s.getRight().getLeft()) == Type.NAT
                         && getType(s.getRight().getRight().getLeft()) == Type.NAT ? Type.NAT : Type.UNKNOWN;
-            case Constants.LESS:
-                return getLength(s) == 3 && getType(s.getLeft().getRight()) == Type.NAT
-                        && getType(s.getRight().getRight().getLeft()) == Type.NAT ? Type.BOOL : Type.UNKNOWN;
             case Constants.COND:
                 if (getLength(s) < 2) {
                     return Type.UNKNOWN;
@@ -86,7 +84,20 @@ public class TypeChecker {
             case Constants.CAR:
             case Constants.CDR:
                 return minLength(s.getRight().getLeft()) > 0;
+            case Constants.COND:
+                for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
+                    if (!isEmptyListSafe(t.getLeft().getLeft()) || !isEmptyListSafe(t.getLeft().getRight().getLeft())) {
+                        return false;
+                    }
+                }
+                return true;
             default:
+                for (TreeNode t = s.getRight(); !t.isLeaf(); t = t.getRight()) {
+                    if (!isEmptyListSafe(t.getLeft())) {
+                        return false;
+                    }
+                }
+
                 return true;
         }
     }
@@ -101,6 +112,8 @@ public class TypeChecker {
         switch (func) {
             case Constants.CONS:
                 return 1 + minLength(s.getRight().getRight().getLeft());
+            case Constants.CDR:
+                return minLength(s.getRight().getLeft()) - 1;
             case Constants.COND:
                 int min = minLength(s.getRight().getLeft().getRight().getLeft());
 
